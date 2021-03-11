@@ -3,17 +3,18 @@ package com.example.paypal;
 import com.example.paypal.config.JwtTokenUtil;
 
 import com.example.paypal.model.Orders;
+import com.example.paypal.model.Payment;
 import com.example.paypal.model.PaypalUsers;
 import com.example.paypal.model.Users;
-import com.example.paypal.repository.OrdersRepository;
-import com.example.paypal.repository.PaypalUsersRepository;
+import com.example.paypal.repository.*;
 
-import com.example.paypal.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,12 @@ public class LoginController {
 
     @Autowired
     OrdersRepository ordersRepository;
+
+    @Autowired
+    PaymentRepository paymentRepository;
+
+    @Autowired
+    CartRepository cartRepository;
 
     @RequestMapping(value = "/")
     public String checkMVC(@RequestParam("jwt") String jwt,Model model) {
@@ -51,6 +58,7 @@ public class LoginController {
         }
         if(u!=null){
             model.addAttribute("uname",uname);
+            model.addAttribute("jwt",jwt);
             //System.out.println(jwt);
             String name = jwtTokenUtil.extractUsername(jwt);
             Users users = usersRepository.findUsersByEmail(name);
@@ -77,25 +85,61 @@ public class LoginController {
     }
 
     @RequestMapping(value = "/pay")
-    public String payNow(@RequestParam("uname") String uname,@RequestParam("amount") int amount,Model model){
+    public String payNow(@RequestParam("uname") String uname,@RequestParam("amount") int amount,@RequestParam("jwt") String jwt,Model model){
         PaypalUsers u = paypalUsersRepository.findPaypalUsersByNumber(uname);
         int balance = u.getAmount();
+        String name = jwtTokenUtil.extractUsername(jwt);
+        Users users = usersRepository.findUsersByEmail(name);
         System.out.println(balance);
         if(balance>=amount)
         {
             System.out.println(balance-amount);
             int a = balance-amount;
             u.setAmount(a);
+            u.setNumber(u.getNumber());
             paypalUsersRepository.save(u);
 
-            System.out.println(u.getAmount());
-            System.out.println(u.getId());
+//            System.out.println(u.getAmount());
+//            System.out.println(u.getId());
+//
+            Payment p = new Payment();
+
+
+            LocalDate localDate = LocalDate.now();
+            String date = localDate.toString();
+
+            LocalTime localTime = LocalTime.now();
+            String time = localTime.toString();
+            p.setUid(u.getId());
+            p.setStatus("Succesful");
+            p.setAmount(amount);
+            p.setDate(date+" "+time);
+            paymentRepository.save(p);
+
+            cartRepository.deleteCartByUid(users.getUser_id());
+            ordersRepository.deleteOrdersByUid(users.getUser_id());
+
+
             model.addAttribute("message","Payment completed successfully");
         }
         else
         {
             model.addAttribute("message","insufficient balance");
+            Payment p = new Payment();
+
+
+            LocalDate localDate = LocalDate.now();
+            String date = localDate.toString();
+
+            LocalTime localTime = LocalTime.now();
+            String time = localTime.toString();
+            p.setUid(u.getId());
+            p.setStatus("Un-Succesful");
+            p.setAmount(amount);
+            p.setDate(date+" "+time);
+            paymentRepository.save(p);
         }
+
         return "payment";
     }
 }

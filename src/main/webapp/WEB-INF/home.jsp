@@ -9,6 +9,7 @@
 <form action="/pay" action="post">
     <input type="hidden" name="amount" value=${amount}>
     <input type="hidden" name="uname" value=${uname}>
+    <input type="hidden" name="jwt" value=${jwt}>
     <input type="submit" value="pay now">
 </form>
 
