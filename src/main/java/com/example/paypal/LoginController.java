@@ -2,10 +2,7 @@ package com.example.paypal;
 
 import com.example.paypal.config.JwtTokenUtil;
 
-import com.example.paypal.model.Orders;
-import com.example.paypal.model.Payment;
-import com.example.paypal.model.PaypalUsers;
-import com.example.paypal.model.Users;
+import com.example.paypal.model.*;
 import com.example.paypal.repository.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -39,6 +37,9 @@ public class LoginController {
     @Autowired
     CartRepository cartRepository;
 
+    @Autowired
+    FlagRepository flagRepository;
+
     @RequestMapping(value = "/")
     public String checkMVC(@RequestParam("jwt") String jwt,Model model) {
         System.out.println(jwt);
@@ -47,7 +48,7 @@ public class LoginController {
     }
 
     @RequestMapping(value = "/login")
-    public String loginHomePage(@RequestParam("uname") String uname,@RequestParam("jwt") String jwt, Model model){
+    public String loginHomePage(@RequestParam("uname") String uname,@RequestParam("jwt") String jwt, Model model) throws NoSuchAlgorithmException {
         PaypalUsers u = null;
         try
         {
@@ -60,16 +61,17 @@ public class LoginController {
             model.addAttribute("uname",uname);
             model.addAttribute("jwt",jwt);
             //System.out.println(jwt);
+            JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
             String name = jwtTokenUtil.extractUsername(jwt);
             Users users = usersRepository.findUsersByEmail(name);
             //System.out.println(users.getUser_id());
-            ArrayList<Orders> orders = ordersRepository.findOrdersByUid(users.getUser_id());
+            ArrayList<Cart> carts = cartRepository.findCartByUid(users.getUser_id());
             //System.out.println(orders.size());
             int sum = 0;
-            for (Orders o:
-                    orders) {
+            for (Cart c:
+                    carts) {
 
-                sum = sum + o.getPrice();
+                sum = sum +c.getAmount();
                 //System.out.println("sum = "+sum);
             }
 //            for(int i=0;i<orders.size();i++)
@@ -116,6 +118,14 @@ public class LoginController {
             p.setDate(date+" "+time);
             paymentRepository.save(p);
 
+            Flag f = new Flag();
+            f.setUid(users.getUser_id());
+            f.setAmount(amount);
+            f.setFlag("Payment Success");
+            f.setDate(date+" "+time);
+            flagRepository.save(f);
+
+
             cartRepository.deleteCartByUid(users.getUser_id());
             ordersRepository.deleteOrdersByUid(users.getUser_id());
 
@@ -138,6 +148,13 @@ public class LoginController {
             p.setAmount(amount);
             p.setDate(date+" "+time);
             paymentRepository.save(p);
+
+            Flag f = new Flag();
+            f.setUid(users.getUser_id());
+            f.setAmount(amount);
+            f.setFlag("Payment Un-Success");
+            f.setDate(date+" "+time);
+            flagRepository.save(f);
         }
 
         return "payment";
