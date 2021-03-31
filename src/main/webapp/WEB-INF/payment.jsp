@@ -17,6 +17,7 @@
 <body>
 <div>
 <h1 style="font-size: 40px;text-align:center;margin:0px auto"> ${message} </h1>
+    
 </div>
 </body>
 </html>

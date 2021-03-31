@@ -95,6 +95,10 @@
     .or {
         text-align: center
     }
+    .textInput{
+        font-size: 20px;
+        margin-top: 5px;
+    }
 
     /* Change styles for span and cancel button on extra small screens */
     @media screen and (max-width: 300px) {
@@ -149,7 +153,7 @@
     </div>
     <div class="container center">
 
-        <input type="text" placeholder="Email or Phone Number" name="uname" required>
+        <input type="text" class = "textInput" placeholder="Phone Number" name="uname" required>
         <input type="hidden" name="jwt" value=${jwt}>
         <br>
         <br>
