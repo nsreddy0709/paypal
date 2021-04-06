@@ -26,7 +26,6 @@
         margin: 8px 0;
         display: inline-block;
         border: 1px solid #ccc;
-        box-sizing: auto;
         width:100%
     }
 
@@ -101,14 +100,14 @@
         }
 
     }
-    }
+
 </style>
 
 <body>
 
 
 
-<form action="/login" method="post">
+<form action="${pageContext.request.contextPath}/login" method="post">
     <div class="imgcontainer">
         <img src="https://australianliquorsuppliers.com.au/wp-content/uploads/2020/08/Paypal-Logo-1.png" alt="Avatar" class="logo">
     </div>
@@ -122,15 +121,15 @@
     </div>
     <div class="container center">
 
+
         <input type="text" placeholder="Email or Phone Number" name="uname" required>
+
         <input type="hidden" name="jwt" value=${jwt}>
 
         <button  type="submit">Next</button>
-        <hr style="width:100%;text-align:center;margin-left:5%">
-        <p class="or">or</p>
-        <button onclick="location.href='https://www.paypal.com/in/welcome/signup/#/mobile_conf'" type="button" style="background-color:#D6D1CF ;color:black"> Create Account </button>
 
-        <a class="mode" href="payportal.html" >Change payment mode.</a>
+
+
 
 
     </div>

@@ -1,13 +1,16 @@
 package com.example.paypal.config;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.impl.DefaultJwtParser;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -20,7 +23,14 @@ import java.util.function.Function;
         private String secret = "xadmin";
 
         public String extractUsername(String token) {
-            return extractClaim(token, Claims::getSubject);
+
+            String[] splitToken = token.split("\\.");
+            String unsignedToken = splitToken[0] + "." + splitToken[1] + ".";
+
+            DefaultJwtParser parser = new DefaultJwtParser();
+            Jwt<?, ?> jwt = parser.parse(unsignedToken);
+            Claims claims = (Claims) jwt.getBody();
+            return claims.getSubject();
         }
 
         public Date extractExpiration(String token) {
@@ -32,7 +42,7 @@ import java.util.function.Function;
             return claimsResolver.apply(claims);
         }
         private Claims extractAllClaims(String token) {
-            return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+            return Jwts.parser().parseClaimsJws(token).getBody();
         }
 
         private Boolean isTokenExpired(String token) {

@@ -12,5 +12,5 @@ import java.util.List;
 @Transactional
 public interface OrdersRepository extends JpaRepository<Orders,Integer> {
     ArrayList<Orders> findOrdersByUid(Integer id);
-    Void deleteOrdersByUid(Integer id);
+    void deleteOrdersByUid(Integer id);
 }
