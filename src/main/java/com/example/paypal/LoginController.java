@@ -40,7 +40,7 @@ public class LoginController {
     @Autowired
     FlagRepository flagRepository;
 
-    @RequestMapping(value = "/")
+    @RequestMapping(value = "/.......")
     public String checkMVC(@RequestParam("jwt") String jwt,Model model) {
         System.out.println(jwt);
         model.addAttribute("jwt", jwt);
