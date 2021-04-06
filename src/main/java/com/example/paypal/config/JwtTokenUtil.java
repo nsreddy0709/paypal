@@ -8,6 +8,7 @@ import io.jsonwebtoken.impl.DefaultJwtParser;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.security.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -20,7 +21,8 @@ import java.util.function.Function;
 
     @Service
     public class JwtTokenUtil {
-        private String secret = "xadmin";
+       private String secret = "xadmin";
+
 
         public String extractUsername(String token) {
 
